@@ -13,8 +13,6 @@ const Home = () => {
   const firstPokemon = trpc.useQuery(["get-pokemon-by-id", { id: first }]);
   const secondPokemon = trpc.useQuery(["get-pokemon-by-id", { id: second }]);
 
-  if (firstPokemon.isLoading || secondPokemon.isLoading) return null;
-
   const voteForRoundest = (selected: number) => {
     updateIds(getOptionsForVote());
   };
