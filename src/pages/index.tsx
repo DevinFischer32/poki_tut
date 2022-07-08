@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { getOptionsForVote } from "@/utils/getRandomPokemon";
 import { trpc } from "@/utils/trpc";
 import { useState } from "react";
@@ -20,6 +21,7 @@ const Home = () => {
           <img
             src={firstPokemon.data?.sprites.front_default}
             className="w-full"
+            alt=""
           />
           <div className="text-xl text-center capitalize mt-[-2rem]">
             {firstPokemon.data?.name}
@@ -30,6 +32,7 @@ const Home = () => {
           <img
             src={secondPokemon.data?.sprites.front_default}
             className="w-full"
+            alt=""
           />
           <div className="text-xl text-center capitalize mt-[-2rem]">
             {secondPokemon.data?.name}
