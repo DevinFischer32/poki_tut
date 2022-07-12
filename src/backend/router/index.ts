@@ -1,5 +1,5 @@
 import * as trpc from "@trpc/server";
-import { z } from "zod";
+import { string, z } from "zod";
 
 import { PokemonClient } from "pokenode-ts";
 
@@ -9,7 +9,7 @@ export const appRouter = trpc.router().query("get-pokemon-by-id", {
     const api = new PokemonClient();
 
     const pokemon = await api.getPokemonById(input.id);
-    return { name: pokemon.name, sprites: pokemon.sprites };
+    return { name: pokemon.name, sprites: pokemon.sprites as any };
   },
 });
 
