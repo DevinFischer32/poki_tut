@@ -1,7 +1,7 @@
 import * as trpc from "@trpc/server";
 import { z } from "zod";
 
-import { PokemonClient, PokemonSprites } from "pokenode-ts";
+import { PokemonClient } from "pokenode-ts";
 import { prisma } from "@/backend/utils/prisma";
 
 export const appRouter = trpc
@@ -9,9 +9,9 @@ export const appRouter = trpc
   .query("get-pokemon-by-id", {
     input: z.object({ id: z.number() }),
     async resolve({ input }) {
-      const api = new PokemonClient();
+      const pokeApiConnection = new PokemonClient();
 
-      const pokemon = await api.getPokemonById(input.id);
+      const pokemon = await pokeApiConnection.getPokemonById(input.id);
       return { name: pokemon.name, sprites: pokemon.sprites };
     },
   })
