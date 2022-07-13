@@ -1,7 +1,7 @@
 import * as trpc from "@trpc/server";
 import { z } from "zod";
 
-import { PokemonClient } from "pokenode-ts";
+import { PokemonClient, PokemonSprites } from "pokenode-ts";
 import { prisma } from "@/backend/utils/prisma";
 
 export const appRouter = trpc
