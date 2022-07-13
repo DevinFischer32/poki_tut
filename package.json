@@ -1,36 +1,35 @@
 {
-  "name": "with",
+  "name": "roundest-mon",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "postinstall": "prisma generate",
+    "ts-node": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\"}\""
   },
   "dependencies": {
-    "@prisma/client": "^4.0.0",
-    "@trpc/client": "^9.25.3",
-    "@trpc/next": "^9.25.3",
-    "@trpc/react": "^9.25.3",
-    "@trpc/server": "^9.25.3",
-    "next": "12.2.0",
-    "pokenode-ts": "^1.14.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-query": "^3.39.1",
-    "zod": "^3.17.3"
+    "@prisma/client": "^3.5.0",
+    "@trpc/client": "^9.15.0",
+    "@trpc/next": "^9.15.0",
+    "@trpc/react": "^9.15.0",
+    "@trpc/server": "^9.15.0",
+    "next": "12.0.4",
+    "next-plausible": "^3.1.4",
+    "pokenode-ts": "^1.9.1",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-query": "^3.33.5",
+    "zod": "^3.11.6"
   },
   "devDependencies": {
-    "@types/node": "18.0.3",
-    "@types/react": "18.0.15",
-    "@types/react-dom": "18.0.6",
-    "autoprefixer": "^10.4.7",
-    "eslint": "8.19.0",
-    "eslint-config-next": "12.2.0",
-    "postcss": "^8.4.14",
-    "prisma": "^4.0.0",
-    "tailwindcss": "^3.1.4",
-    "typescript": "4.7.4"
+    "@types/react": "17.0.37",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.1",
+    "prisma": "^3.5.0",
+    "tailwindcss": "^2.2.19",
+    "ts-node": "^10.4.0",
+    "typescript": "4.5.2"
   }
 }
