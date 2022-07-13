@@ -6,6 +6,7 @@ import { inferQueryResponse } from "./api/trpc/[trpc]";
 import React from "react";
 
 import Image from "next/image";
+import Link from "next/link";
 
 const btn =
   "inline-flex intems-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
@@ -27,20 +28,26 @@ const Home = () => {
     updateIds(getOptionsForVote());
   };
 
+  const dataLoaded =
+    !firstPokemon.isLoading &&
+    firstPokemon.data &&
+    !secondPokemon.isLoading &&
+    secondPokemon.data;
+
   return (
     <div className="h-screen w-screen flex flex-col justify-center items-center">
       <div className="text-2xl text-center">Which Pokemon is Rounder?</div>
       <div className="p-2"></div>
       <div className="border rounded p-8 flex justify-between max-w-2xl items-center ">
-        {!firstPokemon.isLoading && !secondPokemon.isLoading && (
+        {dataLoaded && (
           <>
             <PokemonListing
-              pokemon={firstPokemon.data}
+              pokemon={firstPokemon.data!}
               vote={() => voteForRoundest(first)}
             />
             <div className="p-8">Vs</div>
             <PokemonListing
-              pokemon={secondPokemon.data}
+              pokemon={secondPokemon.data!}
               vote={() => voteForRoundest(second)}
             />
           </>
@@ -48,8 +55,15 @@ const Home = () => {
 
         <div className="p-2" />
       </div>
+      {!dataLoaded && <img src="/rings.svg" />}
       <div className="absolute bottom-0 w-full text-xl text-center pb-2">
-        <a href="https://github.com/DevinFischer32/poki_tut">Github</a>
+        <Link href="https://github.com/DevinFischer32/poki_tut">
+          <a>Github</a>
+        </Link>
+        {" | "}
+        <Link href="/results">
+          <a>Results</a>
+        </Link>
       </div>
     </div>
   );
