@@ -1,94 +1,119 @@
-/* eslint-disable @next/next/no-img-element */
-import { getOptionsForVote } from "@/utils/getRandomPokemon";
 import { trpc } from "@/utils/trpc";
-import { useState } from "react";
+import type React from "react";
 import { inferQueryResponse } from "./api/trpc/[trpc]";
-import React from "react";
 
 import Image from "next/image";
 import Link from "next/link";
+import Head from "next/head";
+import { usePlausible } from "next-plausible";
 
 const btn =
-  "inline-flex intems-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
+  "inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
 
-const Home = () => {
-  const [ids, updateIds] = useState(() => getOptionsForVote());
-  const [first, second] = ids;
-
-  const firstPokemon = trpc.useQuery(["get-pokemon-by-id", { id: first }]);
-  const secondPokemon = trpc.useQuery(["get-pokemon-by-id", { id: second }]);
+export default function Home() {
+  const {
+    data: pokemonPair,
+    refetch,
+    isLoading,
+  } = trpc.useQuery(["get-pokemon-pair"], {
+    refetchInterval: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  });
 
   const voteMutation = trpc.useMutation(["cast-vote"]);
+  const plausible = usePlausible();
 
   const voteForRoundest = (selected: number) => {
-    if (selected === first) {
-      voteMutation.mutate({ votedFor: first, votedAgainst: second });
-    } else voteMutation.mutate({ votedFor: second, votedAgainst: first });
+    if (!pokemonPair) return; // Early escape to make Typescript happy
 
-    updateIds(getOptionsForVote());
+    if (selected === pokemonPair?.firstPokemon.id) {
+      // If voted for 1st pokemon, fire voteFor with first ID
+      voteMutation.mutate({
+        votedFor: pokemonPair.firstPokemon.id,
+        votedAgainst: pokemonPair.secondPokemon.id,
+      });
+    } else {
+      // else fire voteFor with second ID
+      voteMutation.mutate({
+        votedFor: pokemonPair.secondPokemon.id,
+        votedAgainst: pokemonPair.firstPokemon.id,
+      });
+    }
+
+    plausible("cast-vote");
+    refetch();
   };
 
-  const dataLoaded =
-    !firstPokemon.isLoading &&
-    firstPokemon.data &&
-    !secondPokemon.isLoading &&
-    secondPokemon.data;
+  const fetchingNext = voteMutation.isLoading || isLoading;
 
   return (
-    <div className="h-screen w-screen flex flex-col justify-center items-center">
-      <div className="text-2xl text-center">Which Pokemon is Rounder?</div>
-      <div className="p-2"></div>
-      <div className="border rounded p-8 flex justify-between max-w-2xl items-center ">
-        {dataLoaded && (
-          <>
-            <PokemonListing
-              pokemon={firstPokemon.data!}
-              vote={() => voteForRoundest(first)}
-            />
-            <div className="p-8">Vs</div>
-            <PokemonListing
-              pokemon={secondPokemon.data!}
-              vote={() => voteForRoundest(second)}
-            />
-          </>
-        )}
-
-        <div className="p-2" />
-      </div>
-      {!dataLoaded && <img src="/rings.svg" />}
-      <div className="absolute bottom-0 w-full text-xl text-center pb-2">
-        <Link href="https://github.com/DevinFischer32/poki_tut">
-          <a>Github</a>
-        </Link>
-        {" | "}
+    <div className="h-screen w-screen flex flex-col justify-between items-center relative">
+      <Head>
+        <title>Roundest Pokemon</title>
+      </Head>
+      <div className="text-2xl text-center pt-8">Which Pokémon is Rounder?</div>
+      {pokemonPair && (
+        <div className="p-8 flex justify-between items-center max-w-2xl flex-col md:flex-row animate-fade-in">
+          <PokemonListing
+            pokemon={pokemonPair.firstPokemon}
+            vote={() => voteForRoundest(pokemonPair.firstPokemon.id)}
+            disabled={fetchingNext}
+          />
+          <div className="p-8 italic text-xl">{"or"}</div>
+          <PokemonListing
+            pokemon={pokemonPair.secondPokemon}
+            vote={() => voteForRoundest(pokemonPair.secondPokemon.id)}
+            disabled={fetchingNext}
+          />
+          <div className="p-2" />
+        </div>
+      )}
+      {!pokemonPair && <img src="/rings.svg" className="w-48" />}
+      <div className="w-full text-xl text-center pb-2">
+        <a href="https://twitter.com/t3dotgg">Twitter</a>
+        <span className="p-4">{"-"}</span>
         <Link href="/results">
           <a>Results</a>
+        </Link>
+        <span className="p-4">{"-"}</span>
+        <Link href="/about">
+          <a>About</a>
         </Link>
       </div>
     </div>
   );
-};
-export default Home;
+}
 
-type PokemonFromServer = inferQueryResponse<"get-pokemon-by-id">;
+type PokemonFromServer = inferQueryResponse<"get-pokemon-pair">["firstPokemon"];
 
 const PokemonListing: React.FC<{
   pokemon: PokemonFromServer;
   vote: () => void;
+  disabled: boolean;
 }> = (props) => {
   return (
-    <div className="flex flex-col items-center">
-      <Image
-        src={props.pokemon.spriteUrl!}
-        layout="fixed"
-        height={256}
-        width={256}
-        alt=""
-      />
-      <div className="text-xl text-center capitalize mt-[-2rem]">
+    <div
+      className={`flex flex-col items-center transition-opacity ${
+        props.disabled && "opacity-0"
+      }`}
+      key={props.pokemon.id}
+    >
+      <div className="text-xl text-center capitalize mt-[-0.5rem]">
         {props.pokemon.name}
       </div>
-      <button className={btn} onClick={() => props.vote()}>
+      <Image
+        src={props.pokemon.spriteUrl}
+        width={256}
+        height={256}
+        layout="fixed"
+        className="animate-fade-in"
+      />
+      <button
+        className={btn}
+        onClick={() => props.vote()}
+        disabled={props.disabled}
+      >
         Rounder
       </button>
     </div>
